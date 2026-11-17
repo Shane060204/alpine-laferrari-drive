@@ -1,0 +1,25 @@
+name: 合作需求 / Collaboration
+description: 讨论定制赛道、交互展示、活动演示等具体需求
+title: '[Collaboration] '
+body:
+  - type: markdown
+    attributes:
+      value: '欢迎讨论具体需求。本表单会生成公开 Issue，请勿填写账号密码、私人联系方式或保密业务资料。'
+  - type: textarea
+    id: usecase
+    attributes:
+      label: 使用场景
+      description: 想为谁解决什么问题？例如活动演示、教学、定制赛道或品牌化交互体验。
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 期望功能与交付
+      description: 说明主要需求、运行设备和期望的时间范围。
+    validations:
+      required: true
+  - type: textarea
+    id: discussion
+    attributes:
+      label: 希望先讨论的问题

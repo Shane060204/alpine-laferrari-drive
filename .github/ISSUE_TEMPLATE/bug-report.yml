@@ -1,0 +1,25 @@
+name: 问题反馈 / Bug report
+description: 报告路面穿插、操作异常或显示问题
+title: '[Bug] '
+labels: [bug]
+body:
+  - type: input
+    id: environment
+    attributes:
+      label: 设备和浏览器
+      placeholder: 例如 Windows / Edge，或 iPhone / Safari
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 如何触发问题？在哪个弯道或视角？可附截图。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果与实际结果
+    validations:
+      required: true

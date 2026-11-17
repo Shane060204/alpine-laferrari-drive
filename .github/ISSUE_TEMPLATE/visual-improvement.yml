@@ -1,0 +1,27 @@
+name: 美化提案 / Visual improvement
+description: 提议改进车辆、风景、材质、光照或界面
+title: '[Visual] '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想改善的具体画面
+      description: 描述位置、当前效果和希望看到的变化，可附截图或原创草图。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案与参考
+      description: 简述思路。外部参考请注明来源，新增素材请注明许可证。
+    validations:
+      required: true
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: 是否愿意参与实现
+      options:
+        - 我愿意提交 PR
+        - 我可以提供设计或素材
+        - 我先提供建议
