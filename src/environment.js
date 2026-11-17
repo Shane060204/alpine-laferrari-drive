@@ -9,8 +9,16 @@ const viewport = $('viewport'),
     preserveDrawingBuffer: true,
     powerPreference: 'high-performance',
   });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
-renderer.shadowMap.enabled = true;
+const graphicsContext = renderer.getContext();
+const rendererInfo = graphicsContext.getExtension('WEBGL_debug_renderer_info');
+const rendererName = rendererInfo
+  ? graphicsContext.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL)
+  : '';
+// CPU-based rendering also occurs on older devices and remote desktops.
+// Keep the same road and car, while reducing scenery work so input stays responsive.
+const lightweightGraphics = /swiftshader|llvmpipe|software/i.test(rendererName);
+renderer.setPixelRatio(Math.min(devicePixelRatio, lightweightGraphics ? 1 : 1.7));
+renderer.shadowMap.enabled = !lightweightGraphics;
 renderer.shadowMap.type = T.PCFSoftShadowMap;
 renderer.outputColorSpace = T.SRGBColorSpace;
 renderer.toneMapping = T.ACESFilmicToneMapping;
@@ -373,22 +381,23 @@ for (let i = 0; i < count; i += 4) {
     treePositions.push({ x, z, h: heightAt(x, z), s: 0.65 + rand() * 0.9, r: rand() * 6.28 });
   }
 }
-for (let i = 0; i < 3000; i++) {
+for (let i = 0; i < (lightweightGraphics ? 1100 : 3000); i++) {
   const x = -500 + rand() * 3600,
     z = -600 + rand() * 2900;
   if (nearTrack(x, z) < 50 || ((x - lakeX) / 330) ** 2 + ((z - lakeZ) / 170) ** 2 < 1.2) continue;
   treePositions.push({ x, z, h: heightAt(x, z), s: 0.7 + rand() * 1.4, r: rand() * 6.28 });
 }
 const pineParts = [];
-for (let i = 0; i < 9; i++) {
-  const g = new T.ConeGeometry(2.5 - i * 0.24, 2.5, 14);
+for (let i = 0; i < (lightweightGraphics ? 3 : 9); i++) {
+  const level = lightweightGraphics ? i * 3 : i;
+  const g = new T.ConeGeometry(2.5 - level * 0.24, 2.5, lightweightGraphics ? 7 : 14);
   const a = g.attributes.position;
   for (let j = 0; j < a.count; j++) {
     const f = 0.85 + rand() * 0.3;
     a.setXYZ(j, a.getX(j) * f, a.getY(j) + (rand() - 0.5) * 0.28, a.getZ(j) * f);
   }
   g.computeVertexNormals();
-  g.translate(0, 2.4 + i * 0.91, 0);
+  g.translate(0, 2.4 + level * 0.91, 0);
   pineParts.push(g);
 }
 const leafGeo = mergeGeometry(pineParts),
@@ -424,7 +433,7 @@ for (const [x, y, z, r] of [
   [1.1, 5.7, -0.4, 1.8],
   [0.4, 7.3, 0.4, 1.6],
 ]) {
-  const g = new T.IcosahedronGeometry(r, 2);
+  const g = new T.IcosahedronGeometry(r, lightweightGraphics ? 1 : 2);
   g.translate(x, y, z);
   broadParts.push(g);
 }
@@ -506,7 +515,7 @@ const bladeMat = new T.MeshStandardMaterial({
 for (let i = 0; i < count; i += 2) {
   const p = points[i];
   for (const sign of [-1, 1])
-    for (let k = 0; k < 8; k++) {
+    for (let k = 0; k < (lightweightGraphics ? 3 : 8); k++) {
       const d = 12.4 + rand() * 22,
         x = p.x + p.nx * d * sign + (rand() - 0.5) * 8,
         z = p.y + p.ny * d * sign + (rand() - 0.5) * 8;

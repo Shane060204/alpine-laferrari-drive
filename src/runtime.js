@@ -107,7 +107,7 @@ function frame(t) {
       cameraAngle += error * (1 - Math.exp(-dt * 5));
     }
     renderTime += dt;
-    if (renderTime >= 1 / 40) {
+    if (renderTime >= 1 / (lightweightGraphics ? 16 : 40)) {
       render();
       renderTime = 0;
     }
