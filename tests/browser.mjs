@@ -14,6 +14,9 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  // Step simulation time explicitly: software GPU speed must not determine input timing.
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 2000));
   const html = (await readFile(new URL('../dist/index.html', import.meta.url), 'utf8'))
     .replace(
       'renderer.render(world, camera);',
@@ -82,18 +85,17 @@ try {
 
   await page.locator('#enable-keyboard').click();
   await page.keyboard.down('w');
-  await page.waitForFunction(() => Number(document.getElementById('speed').textContent) > 10);
+  await page.clock.runFor(600);
+  assert.ok(Number(await page.locator('#speed').textContent()) > 10);
   await page.keyboard.up('w');
   const before = Number(await page.locator('#map-car').getAttribute('cy'));
   await page.keyboard.down('d');
-  await page.waitForFunction(
-    (start) => Number(document.getElementById('map-car').getAttribute('cy')) > start + 0.1,
-    before,
-  );
+  await page.clock.runFor(600);
+  assert.ok(Number(await page.locator('#map-car').getAttribute('cy')) > before + 0.1);
   await page.keyboard.up('d');
   await page.keyboard.press('Space');
   const stopped = await page.locator('#map-car').getAttribute('cx');
-  await page.waitForTimeout(200);
+  await page.clock.runFor(200);
   assert.equal(await page.locator('#map-car').getAttribute('cx'), stopped);
   await page.keyboard.press('Space');
   await page.keyboard.press('r');
@@ -105,7 +107,7 @@ try {
 
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.waitForTimeout(100);
+    await page.clock.runFor(160);
     const projection = await page.evaluate(() => {
       const { camera, car, state } = window.__APEX_TEST__;
       const bounds = new THREE.Box3().setFromObject(car),
